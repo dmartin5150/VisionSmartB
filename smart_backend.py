@@ -15,19 +15,19 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
 patientInfo = [
-  {'patientName':'Seamless Apple', 'FIN':'1111111'}
+  {'patientName':'Seamless Apple', 'FIN':'1111111', 'MRN':'000000'}
 ]
 
 documentInfo = [
-  {'FIN':'1111111','docType': 'falls','status': 'complete'},
-  {'FIN': '1111111','docType':'Isolation Precautions', 'status': 'incomplete'}
+  {'MRN':'0000000','FIN':'1111111','docType': 'falls','docStatus': 'complete'},
+  {'MRN':'0000000','FIN': '1111111','docType':'Isolation Precautions', 'docStatus': 'incomplete'}
 ]
 
 patient_df = pd.DataFrame(patientInfo)
 document_df = pd.DataFrame(documentInfo)
 
 print(patient_df)
-print(document_df)
+# print(document_df)
 
 
 def get_data(request, string):
@@ -44,6 +44,52 @@ def update_docs(FIN, docType, docValue):
     row_index = document_df.loc[(document_df['FIN'] == FIN) & (document_df['docType'] == docType)].index[0]
     document_df.loc[row_index,docType] = docValue
 
+def getDemo(curFin):
+    curdemo = patient_df.loc[patient_df['FIN'] == curFin]
+    print('curdemo', curdemo )
+    patientName = curdemo.iloc[0]['patientName']
+    FIN = curdemo.iloc[0]['FIN']
+    MRN = curdemo.iloc[0]['MRN']
+    print('FIN', FIN)
+    return {'patientName':patientName, 'FIN':FIN,'MRN':MRN}
+
+def getDocStats(curFin):
+    curDocs = document_df[document_df['FIN'] == curFin]
+    curDocStatus={}
+    curDocList =[]
+    if (curDocs.shape[0] != 0):
+        curDocsTypes = curDocs['docType'].drop_duplicates().to_list()
+        for curDocType in curDocsTypes:
+            # print('curDocType',curDocType)
+            curDoc = curDocs.loc[curDocs['docType'] == curDocType]
+            rowIndex=curDoc.index[0]
+            docType = curDoc.iloc[0]['docType']
+            docStatus = curDoc.iloc[0]['docStatus']
+            curDocStatus ={'docType':docType, 'docStatus':docStatus}
+            print('curdocstatus', curDocStatus)
+            curDocList.append(curDocStatus)
+    return curDocList
+
+
+
+
+def get_all_data():
+    curFINS = patient_df['FIN'].drop_duplicates().to_list()
+    patDemo = {}
+    patList = []
+    if (len(curFINS) > 0):
+        for curFin in curFINS:
+            patDemo = getDemo(curFin)
+            # print('patDemo',patDemo)
+            patStatus= getDocStats(curFin)
+            patList.append({'patDemo':patDemo,'patStatus':patStatus})
+            # patList.append({'patDemo':patDemo})
+        return patList
+    else: 
+        return [{'patDemo':{'patientName':'', 'FIN':'', 'MRN':''},'patStatus':[]}]
+    
+patList = get_all_data()
+print(patList)
 
 @app.route('/patientName',methods=['POST'])
 def get_patient_name_async():
@@ -51,7 +97,7 @@ def get_patient_name_async():
     patientName = patient_df[patient_df['FIN'] == FIN]
     curName = ''
     if (patientName.shape[0] != 0):
-        curName = patientName['patientName']
+        curName = patientName[0,'patientName']
     return json.dumps(curName), 200
 
 @app.route('/patientData',methods=['POST'])
@@ -72,4 +118,4 @@ def update_docs_async():
     return json.dumps('doc updated'), 200
 
 
-app.run(host='0.0.0.0', port=5002)
+# app.run(host='0.0.0.0', port=5002)
