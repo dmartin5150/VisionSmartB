@@ -15,12 +15,15 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
 patientInfo = [
-  {'patientName':'Seamless Apple', 'FIN':'1111111', 'MRN':'000000'}
+  {'patientName':'Seamless Apple', 'FIN':'1111111', 'MRN':'0000000'},
+  {'patientName':'Seamless Larry', 'FIN':'2222222', 'MRN':'2222222'}
 ]
 
 documentInfo = [
-  {'MRN':'0000000','FIN':'1111111','docType': 'falls','docStatus': 'complete'},
-  {'MRN':'0000000','FIN': '1111111','docType':'Isolation Precautions', 'docStatus': 'incomplete'}
+  {'MRN':'0000000','FIN':'1111111','docType': 'falls','docStatus': 'Complete'},
+  {'MRN':'0000000','FIN':'1111111','docType':'Isolation Precautions', 'docStatus': 'Not Complete'},
+  {'MRN':'2222222','FIN':'2222222','docType': 'falls','docStatus': 'Complete'},
+  {'MRN':'2222222','FIN':'2222222','docType':'Isolation Precautions', 'docStatus': 'Not Complete'}
 ]
 
 patient_df = pd.DataFrame(patientInfo)
@@ -88,8 +91,7 @@ def get_all_data():
     else: 
         return [{'patDemo':{'patientName':'', 'FIN':'', 'MRN':''},'patStatus':[]}]
     
-patList = get_all_data()
-print(patList)
+
 
 @app.route('/patientName',methods=['POST'])
 def get_patient_name_async():
@@ -117,5 +119,10 @@ def update_docs_async():
     update_docs(FIN, 'status',docValue)
     return json.dumps('doc updated'), 200
 
+@app.route('/allPatientInfo', methods=['POST'])
+def get_all_data_async():
+    return json.dumps(get_all_data()),200
 
-# app.run(host='0.0.0.0', port=5002)
+
+
+app.run(host='0.0.0.0', port=5002)
