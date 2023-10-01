@@ -29,7 +29,7 @@ documentInfo = [
 patient_df = pd.DataFrame(patientInfo)
 document_df = pd.DataFrame(documentInfo)
 
-print(patient_df)
+# print(patient_df)
 # print(document_df)
 
 
@@ -45,15 +45,16 @@ def get_doc_data(doc_data):
 
 def update_docs(FIN, docType, docValue):
     row_index = document_df.loc[(document_df['FIN'] == FIN) & (document_df['docType'] == docType)].index[0]
-    document_df.loc[row_index,docType] = docValue
+    print('fin', FIN,'docType', docType, 'docStatus', docValue)
+    document_df.loc[row_index,'docStatus'] = str(docValue)
+    print(document_df)
 
 def getDemo(curFin):
     curdemo = patient_df.loc[patient_df['FIN'] == curFin]
-    print('curdemo', curdemo )
     patientName = curdemo.iloc[0]['patientName']
     FIN = curdemo.iloc[0]['FIN']
     MRN = curdemo.iloc[0]['MRN']
-    print('FIN', FIN)
+    # print('FIN', FIN)
     return {'patientName':patientName, 'FIN':FIN,'MRN':MRN}
 
 def getDocStats(curFin):
@@ -115,13 +116,15 @@ def get_patient_data_async():
 def update_docs_async():
     FIN = get_data(request.json, "FIN")
     docType = get_data(request.json, "docType")
-    docValue = get_data(request.json, 'docValue')
-    update_docs(FIN, 'status',docValue)
+    docStatus = get_data(request.json, 'docStatus')
+    update_docs(FIN, docType,docStatus)
     return json.dumps('doc updated'), 200
 
 @app.route('/allPatientInfo', methods=['POST'])
 def get_all_data_async():
-    return json.dumps(get_all_data()),200
+    all_data = get_all_data()
+    print(all_data)
+    return json.dumps(all_data),200
 
 
 
