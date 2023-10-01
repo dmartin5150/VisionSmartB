@@ -19,8 +19,8 @@ patientInfo = [
 ]
 
 documentInfo = [
-  {'FIN':'1111111','docName': 'falls','status': 'complete'},
-  {'FIN': '1111111','docName':'Isolation Precautions', 'status': 'incomplete'}
+  {'FIN':'1111111','docType': 'falls','status': 'complete'},
+  {'FIN': '1111111','docType':'Isolation Precautions', 'status': 'incomplete'}
 ]
 
 patient_df = pd.DataFrame(patientInfo)
@@ -39,6 +39,10 @@ def get_doc_data(doc_data):
     doc_info = [{'docName': row.docName, 'status': row.status}
                           for index, row in doc_data.iterrows()] 
     return doc_info
+
+def update_docs(FIN, docType, docValue):
+    row_index = document_df.loc[(document_df['FIN'] == FIN) & (document_df['docType'] == docType)].index[0]
+    document_df.loc[row_index,docType] = docValue
 
 
 @app.route('/patientName',methods=['POST'])
@@ -59,6 +63,13 @@ def get_patient_data_async():
         docInfo = get_doc_data(docInfo)
     return json.dumps(docInfo), 200
 
+@app.route('/updateDocs',methods=['POST'])
+def update_docs_async():
+    FIN = get_data(request.json, "FIN")
+    docType = get_data(request.json, "docType")
+    docValue = get_data(request.json, 'docValue')
+    update_docs(FIN, 'status',docValue)
+    return json.dumps('doc updated'), 200
 
 
 app.run(host='0.0.0.0', port=5002)
