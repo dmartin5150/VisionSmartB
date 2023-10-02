@@ -15,13 +15,13 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
 patientInfo = [
-  {'patientName':'Seamless Apple', 'FIN':'1111111', 'MRN':'0000000'},
+  {'patientName':'Seamless Apple', 'FIN':'740039288', 'MRN':'1051218'},
   {'patientName':'Seamless Larry', 'FIN':'2222222', 'MRN':'2222222'}
 ]
 
 documentInfo = [
-  {'MRN':'0000000','FIN':'1111111','docType': 'falls','docStatus': 'Complete'},
-  {'MRN':'0000000','FIN':'1111111','docType':'Isolation Precautions', 'docStatus': 'Not Complete'},
+  {'MRN':'1051218','FIN':'740039288','docType': 'falls','docStatus': 'Complete'},
+  {'MRN':'1051218','FIN':'740039288','docType':'Isolation Precautions', 'docStatus': 'Not Complete'},
   {'MRN':'2222222','FIN':'2222222','docType': 'falls','docStatus': 'Complete'},
   {'MRN':'2222222','FIN':'2222222','docType':'Isolation Precautions', 'docStatus': 'Not Complete'}
 ]
@@ -100,7 +100,7 @@ def get_patient_name_async():
     patientName = patient_df[patient_df['FIN'] == FIN]
     curName = ''
     if (patientName.shape[0] != 0):
-        curName = patientName[0,'patientName']
+        curName = patientName.iloc[0]['patientName']
     return json.dumps(curName), 200
 
 @app.route('/patientData',methods=['POST'])
