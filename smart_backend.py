@@ -15,15 +15,15 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
 patientInfo = [
-  {'patientName':'Seamless Apple', 'FIN':'740039288', 'MRN':'1051218'},
-  {'patientName':'Seamless Larry', 'FIN':'2222222', 'MRN':'2222222'}
+  {'patientName':'Seamless Larry', 'FIN':'740039288', 'MRN':'1051218'},
+  {'patientName':'Seamless April', 'FIN':'761003836', 'MRN':'1051239'}
 ]
 
 documentInfo = [
   {'MRN':'1051218','FIN':'740039288','docType': 'falls','docStatus': 'Complete'},
   {'MRN':'1051218','FIN':'740039288','docType':'Isolation Precautions', 'docStatus': 'Not Complete'},
-  {'MRN':'2222222','FIN':'2222222','docType': 'falls','docStatus': 'Complete'},
-  {'MRN':'2222222','FIN':'2222222','docType':'Isolation Precautions', 'docStatus': 'Not Complete'}
+  {'MRN':'1051239','FIN':'761003836','docType': 'falls','docStatus': 'Complete'},
+  {'MRN':'1051239','FIN':'761003836','docType':'Isolation Precautions', 'docStatus': 'Not Complete'}
 ]
 
 patient_df = pd.DataFrame(patientInfo)
@@ -39,14 +39,14 @@ def get_data(request, string):
 
 
 def get_doc_data(doc_data):
-    doc_info = [{'docName': row.docName, 'status': row.status}
+    doc_info = [{'docType': row.docType, 'docStatus': row.docStatus}
                           for index, row in doc_data.iterrows()] 
     return doc_info
 
 def update_docs(FIN, docType, docValue):
     row_index = document_df.loc[(document_df['FIN'] == FIN) & (document_df['docType'] == docType)].index[0]
     print('fin', FIN,'docType', docType, 'docStatus', docValue)
-    document_df.loc[row_index,'docStatus'] = str(docValue)
+    document_df.loc[row_index,'status'] = str(docValue)
     print(document_df)
 
 def getDemo(curFin):
@@ -106,10 +106,10 @@ def get_patient_name_async():
 @app.route('/patientData',methods=['POST'])
 def get_patient_data_async():
     FIN = get_data(request.json, "FIN")
-    docInfo = document_df[document_df['FIN'] == FIN]
-    docInfo = [{'name':'', 'status':''}]
-    if (docInfo.shape[0] != 0):
-        docInfo = get_doc_data(docInfo)
+    docData = document_df[document_df['FIN'] == FIN]
+    docInfo = [{'name':'', 'docStatus':''}]
+    if (docData.shape[0] != 0):
+        docInfo = get_doc_data(docData)
     return json.dumps(docInfo), 200
 
 @app.route('/updateDocs',methods=['POST'])
